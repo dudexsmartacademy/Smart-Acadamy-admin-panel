@@ -165,8 +165,16 @@ export const authService = {
 
   async requestPasswordReset(email: string): Promise<{ success: boolean; message: string; error?: string }> {
     try {
+      const isLocal =
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1';
+      const metaEnv = (import.meta as { env?: Record<string, string | undefined> }).env;
+      const redirectOrigin =
+        metaEnv?.VITE_SITE_URL ||
+        (isLocal ? window.location.origin : 'https://admin.dudexsmartacademy.in');
+
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${redirectOrigin}/reset-password`,
       });
 
       if (error) {
