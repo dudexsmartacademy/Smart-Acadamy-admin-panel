@@ -37,7 +37,7 @@ function rowToAttendance(row: any): StudentAttendance {
   const teachers = teacherService.getTeachers();
   const matchedTeacher = teachers.find((t) => t.id === row.teacher_id || t.id === row.marked_by || t.userId === row.teacher_id || t.userId === row.marked_by);
   const markerProfile = row.teacher_profiles?.profiles || row.marker_profiles?.profiles || {};
-  const teacherName = row.teacher_name || markerProfile.full_name || matchedTeacher?.fullName || (matchedTeacher as any)?.name || 'vegeta';
+  const teacherName = row.teacher_name || markerProfile.full_name || matchedTeacher?.fullName || (matchedTeacher as any)?.name || 'Faculty Member';
 
   const rawStatus = String(row.status || 'present');
   const capitalizedStatus = rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1).toLowerCase();
@@ -273,9 +273,16 @@ export const updateStudentAttendanceRecord = (
     `Updated attendance status to ${updatedRecord.status} for ${updatedRecord.studentName} on ${updatedRecord.date}`
   );
 
-  // Only update status and remarks (valid DDL columns on attendance_records)
+  // Title case status to match Teacher & Student portals and DB check constraints
   const statusLower = String(updatedRecord.status || 'present').toLowerCase();
-  const validStatus = ['present', 'absent', 'late', 'excused'].includes(statusLower) ? statusLower : 'present';
+  const validStatus =
+    statusLower === 'absent'
+      ? 'Absent'
+      : statusLower === 'late'
+        ? 'Late'
+        : statusLower === 'excused'
+          ? 'Excused'
+          : 'Present';
 
   supabase
     .from('attendance_records')
@@ -303,7 +310,9 @@ export const getStudentAttendanceSummary = (studentId: string): StudentAttendanc
   const absent = records.filter((r) => r.status === 'Absent' || r.status === 'absent').length;
   const late = records.filter((r) => r.status === 'Late' || r.status === 'late').length;
   const excused = records.filter((r) => r.status === 'Excused' || r.status === 'excused').length;
-  const pct = student.attendancePercentage || (totalConducted ? Math.round(((present + late + excused) / totalConducted) * 100) : 100);
+  const pct = totalConducted > 0
+    ? Math.round(((present + late + excused) / totalConducted) * 100)
+    : (student.attendancePercentage ?? 100);
 
   let riskStatus: 'safe' | 'warning' | 'critical' = 'safe';
   if (pct < 75) riskStatus = 'critical';
@@ -338,7 +347,7 @@ export const saveBulkBatchAttendance = (
   const updatedList = [...cachedStudentAttendance];
 
   items.forEach((item) => {
-    const itemSubj = item.subject || 'General Academic Session';
+    const itemSubj = item.subject || 'General';
     const existingIndex = updatedList.findIndex(
       (r) => r.studentId === item.studentId && r.date === item.date
     );
@@ -411,7 +420,8 @@ export const saveBulkBatchAttendance = (
           const statusLower = String(item.status || 'present').toLowerCase();
           const dbStatus =
             statusLower === 'absent' ? 'Absent' : statusLower === 'late' ? 'Late' : statusLower === 'excused' ? 'Excused' : 'Present';
-          const subj = item.subject || 'General Academic Session';
+          const subj = item.subject || 'General';
+          const markerName = (session?.user?.user_metadata as any)?.full_name || 'Admin';
 
           if (existingMap.has(studentUid)) {
             await supabase
@@ -431,6 +441,7 @@ export const saveBulkBatchAttendance = (
                 class_id: null,
                 batch_name: item.batchName || null,
                 teacher_id: session?.user?.id || null,
+                teacher_name: markerName,
                 subject: subj,
                 date: item.date,
                 session_time: 'Regular Class',

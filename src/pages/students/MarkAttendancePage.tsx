@@ -62,14 +62,17 @@ export const MarkAttendancePage: React.FC = () => {
     const list = getTeachers()
       .map((t) => t.fullName || t.teacherId)
       .filter(Boolean);
-    const defaults = ['vegeta', 'DudeX Faculty', 'Academic Lead'];
-    return Array.from(new Set([...defaults, ...list]));
+    const defaults = ['Academic Lead', 'Faculty Member'];
+    return Array.from(new Set([...list, ...defaults]));
   }, []);
-  const [selectedFaculty, setSelectedFaculty] = useState<string>('vegeta');
+  const [selectedFaculty, setSelectedFaculty] = useState<string>(() => availableFaculty[0] || 'Academic Lead');
   const [isFacultyDropdownOpen, setIsFacultyDropdownOpen] = useState<boolean>(false);
 
-  // Date (defaults to dynamic today)
-  const [selectedDate, setSelectedDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
+  // Date (defaults to dynamic local today)
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  });
 
   // Search input
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -84,11 +87,7 @@ export const MarkAttendancePage: React.FC = () => {
       list = list.filter(
         (s) =>
           s.batch === selectedBatch ||
-          s.batchName === selectedBatch ||
-          (selectedBatch === 'Batch 1' &&
-            ['stu-107', 'stu-108', 'stu-109', 'stu-110', 'stu-111', 'stu-112'].includes(
-              s.id
-            ))
+          s.batchName === selectedBatch
       );
     }
 
