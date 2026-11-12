@@ -36,7 +36,7 @@ import { TemporaryPasswordNotice } from '../../components/teachers/TemporaryPass
 
 const TEACHER_PORTAL_URL =
   ((import.meta as { env?: Record<string, string | undefined> }).env?.VITE_TEACHER_PORTAL_URL) ||
-  'http://localhost:5176';
+  'https://teacher.dudexsmartacademy.in';
 import { Teacher } from '../../types';
 
 export const TeacherProfileDetailPage: React.FC = () => {
