@@ -54,12 +54,11 @@ export const StudentAttendanceDetailPage: React.FC = () => {
       }
     });
     studentRecords.forEach((r) => {
-      const fac = r.teacherName || 'vegeta';
+      const fac = r.teacherName || 'Faculty Member';
       if (fac && !list.includes(fac)) {
         list.push(fac);
       }
     });
-    if (!list.includes('vegeta')) list.push('vegeta');
     return list;
   }, [facultyWise, studentRecords]);
 
@@ -97,7 +96,7 @@ export const StudentAttendanceDetailPage: React.FC = () => {
     return studentRecords.filter(
       (r) =>
         (r.teacherName && r.teacherName.toLowerCase() === selectedFaculty.toLowerCase()) ||
-        (!r.teacherName && selectedFaculty.toLowerCase() === 'vegeta')
+        (!r.teacherName && selectedFaculty.toLowerCase() === 'faculty member')
     );
   }, [selectedFaculty, studentRecords]);
 

@@ -62,16 +62,16 @@ export const MarkAttendancePage: React.FC = () => {
     const list = getTeachers()
       .map((t) => t.fullName || t.teacherId)
       .filter(Boolean);
-    const defaults = ['Academic Lead', 'Faculty Member'];
+    const defaults = ['Academic Lead', 'Faculty In-Charge'];
     return Array.from(new Set([...list, ...defaults]));
   }, []);
   const [selectedFaculty, setSelectedFaculty] = useState<string>(() => availableFaculty[0] || 'Academic Lead');
   const [isFacultyDropdownOpen, setIsFacultyDropdownOpen] = useState<boolean>(false);
 
-  // Date (defaults to dynamic local today)
+  // Date (defaults to dynamic today)
   const [selectedDate, setSelectedDate] = useState<string>(() => {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   });
 
   // Search input
@@ -191,7 +191,7 @@ export const MarkAttendancePage: React.FC = () => {
     try {
       const { data, error } = await supabase.rpc('start_batch_attendance_code', {
         p_batches: targetBatches,
-        p_subject: selectedFaculty || 'vegeta',
+        p_subject: 'General',
         p_valid_minutes: 15,
       });
       if (!error && data && data.length > 0) {
@@ -211,8 +211,8 @@ export const MarkAttendancePage: React.FC = () => {
           .from('attendance_codes')
           .insert({
             batches: targetBatches,
-            subject: selectedFaculty || 'vegeta',
-            teacher_name: selectedFaculty || 'vegeta',
+            subject: 'General',
+            teacher_name: selectedFaculty || 'Faculty In-Charge',
             code: issuedCode,
             created_by: userResp?.user?.id,
             expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
@@ -355,8 +355,8 @@ export const MarkAttendancePage: React.FC = () => {
       studentId: student.id,
       studentName: student.fullName,
       batchName: student.batchName || student.batch || (selectedBatch !== 'All Batches' ? selectedBatch : 'Batch 1'),
-      subject: selectedFaculty || 'vegeta',
-      teacherName: selectedFaculty || 'vegeta',
+      subject: 'General',
+      teacherName: selectedFaculty || 'Faculty In-Charge',
       date: selectedDate,
       status: attendanceState[student.id] || 'Not Marked',
     }));
@@ -444,7 +444,7 @@ export const MarkAttendancePage: React.FC = () => {
                 value={selectedFaculty}
                 onChange={(e) => setSelectedFaculty(e.target.value)}
                 onFocus={() => setIsFacultyDropdownOpen(true)}
-                placeholder="e.g. vegeta, DudeX Faculty..."
+                placeholder="e.g. Faculty Name, Academic Lead..."
                 className="w-full h-11 pl-4 pr-10 rounded-xl bg-[#140F0D] border border-[#3A2922] text-[#F5F0EA] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#946246]/40 transition-all"
               />
               <button
