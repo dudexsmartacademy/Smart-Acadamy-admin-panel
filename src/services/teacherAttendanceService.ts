@@ -201,7 +201,7 @@ export const teacherAttendanceService = {
 
     for (const tid of candidateIds) {
       try {
-        const { data: rows } = await supabaseAny
+        const { data: rows } = await supabase
           .from('teacher_attendance')
           .select('id, date, status')
           .eq('teacher_id', tid)
@@ -212,7 +212,7 @@ export const teacherAttendanceService = {
           const st = (r.status || '').toLowerCase();
           if (st === 'on_leave' || st === 'leave') {
             // Delete the record completely so the teacher is NOT marked as absent or on leave
-            await supabaseAny.from('teacher_attendance').delete().eq('id', r.id);
+            await supabase.from('teacher_attendance').delete().eq('id', r.id);
           }
         }
       } catch (err) {

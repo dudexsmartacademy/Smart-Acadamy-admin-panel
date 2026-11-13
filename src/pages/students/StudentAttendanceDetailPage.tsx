@@ -121,8 +121,8 @@ export const StudentAttendanceDetailPage: React.FC = () => {
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (!target.closest('.subject-tracker-dropdown')) {
-        setIsSubjectDropdownOpen(false);
+      if (!target.closest('.faculty-tracker-dropdown')) {
+        setIsFacultyDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);

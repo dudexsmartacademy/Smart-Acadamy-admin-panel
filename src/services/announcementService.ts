@@ -1,6 +1,6 @@
 import { whenSignedIn } from '../lib/supabase';
 import { supabaseAny as supabase } from '../lib/supabase';
-import { Announcement, CentralNotification } from '../types';
+import { Announcement, CentralNotification, AudienceType } from '../types';
 import { logActivity } from './activityService';
 
 let cachedAnnouncements: Announcement[] = [];
@@ -16,13 +16,18 @@ function notifyChange(): void {
   }
 }
 
-function normalizeAudience(raw?: string): string {
+function normalizeAudience(raw?: string): AudienceType {
   if (!raw) return 'All Users';
   const l = raw.toLowerCase().trim();
   if (l === 'student' || l === 'students' || l === 'students only') return 'Students Only';
   if (l === 'teacher' || l === 'teachers' || l === 'teachers only') return 'Teachers Only';
   if (l === 'all' || l === 'all users') return 'All Users';
-  return raw;
+  if (l === 'specific course') return 'Specific Course';
+  if (l === 'specific batch') return 'Specific Batch';
+  if (l === 'specific section') return 'Specific Section';
+  if (l === 'specific teacher') return 'Specific Teacher';
+  if (l === 'specific student') return 'Specific Student';
+  return 'All Users';
 }
 
 function rowToAnnouncement(row: any): Announcement {

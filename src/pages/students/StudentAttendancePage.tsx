@@ -20,7 +20,7 @@ import {
   getStudentSpecialization,
   getStudentBatch,
 } from './StudentListPage';
-import { Student } from '../../types';
+import { Student, StudentAttendance } from '../../types';
 
 export const StudentAttendancePage: React.FC = () => {
   const navigate = useNavigate();
