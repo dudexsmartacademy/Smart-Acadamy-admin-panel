@@ -325,7 +325,6 @@ export const StudentAttendanceDetailPage: React.FC = () => {
                   <th className="px-5 py-3.5">DATE</th>
                   <th className="px-5 py-3.5">SUBJECT</th>
                   <th className="px-5 py-3.5">FACULTY</th>
-                  <th className="px-5 py-3.5">MODE</th>
                   <th className="px-5 py-3.5">STATUS</th>
                 </tr>
               </thead>
@@ -347,9 +346,6 @@ export const StudentAttendanceDetailPage: React.FC = () => {
                       </td>
                       <td className="px-5 py-4 text-[#A89A91]">
                         {record.faculty || record.teacherName || selectedFaculty}
-                      </td>
-                      <td className="px-5 py-4 text-[#A89A91]">
-                        {record.mode || (record.session?.includes('Online') ? 'Online' : 'Offline')}
                       </td>
                       <td className="px-5 py-4">
                         <span

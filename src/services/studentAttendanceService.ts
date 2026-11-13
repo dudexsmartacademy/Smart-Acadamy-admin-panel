@@ -37,7 +37,10 @@ function rowToAttendance(row: any): StudentAttendance {
   const teachers = teacherService.getTeachers();
   const matchedTeacher = teachers.find((t) => t.id === row.teacher_id || t.id === row.marked_by || t.userId === row.teacher_id || t.userId === row.marked_by);
   const markerProfile = row.teacher_profiles?.profiles || row.marker_profiles?.profiles || {};
-  const teacherName = row.teacher_name || markerProfile.full_name || matchedTeacher?.fullName || (matchedTeacher as any)?.name || 'Faculty Member';
+  let teacherName = row.teacher_name || markerProfile.full_name || matchedTeacher?.fullName || (matchedTeacher as any)?.name || 'Administrator';
+  if (teacherName.toLowerCase().includes('dudex') || teacherName.toLowerCase().includes('academic lead') || teacherName.toLowerCase().includes('faculty in-charge')) {
+    teacherName = 'Administrator';
+  }
 
   const rawStatus = String(row.status || 'present');
   const capitalizedStatus = rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1).toLowerCase();
@@ -235,6 +238,7 @@ export const recordStudentAttendance = (data: Partial<StudentAttendance> & {
         class_id: null,
         batch_name: newRecord.batchName || null,
         teacher_id: session?.user?.id || null,
+        teacher_name: 'Administrator',
         subject: newRecord.subjectName || 'General',
         date: newRecord.date,
         session_time: newRecord.session || 'Regular Session',
@@ -337,6 +341,7 @@ export const saveBulkBatchAttendance = (
     studentName: string;
     batchName: string;
     subject?: string;
+    teacherName?: string;
     date: string;
     status: AttendanceStatus;
   }[]
@@ -365,7 +370,7 @@ export const saveBulkBatchAttendance = (
         batchName: item.batchName,
         subject: itemSubj,
         subjectName: itemSubj,
-        teacherName: 'Faculty In-Charge',
+        teacherName: item.teacherName || 'Administrator',
         date: item.date,
         session: 'Regular Class',
         status: item.status,
@@ -418,7 +423,10 @@ export const saveBulkBatchAttendance = (
           const dbStatus =
             statusLower === 'absent' ? 'Absent' : statusLower === 'late' ? 'Late' : statusLower === 'excused' ? 'Excused' : 'Present';
           const subj = item.subject || 'General';
-          const teacherName = (session?.user?.user_metadata as any)?.full_name || 'Academic Lead';
+          let teacherName = item.teacherName || (session?.user?.user_metadata as any)?.full_name || 'Administrator';
+          if (!teacherName || teacherName.toLowerCase().includes('dudex') || teacherName === 'Academic Lead' || teacherName === 'Faculty In-Charge') {
+            teacherName = 'Administrator';
+          }
 
           if (existingMap.has(studentUid)) {
             await supabase

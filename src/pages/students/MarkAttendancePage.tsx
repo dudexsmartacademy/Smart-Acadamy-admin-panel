@@ -61,11 +61,10 @@ export const MarkAttendancePage: React.FC = () => {
   const availableFaculty = useMemo(() => {
     const list = getTeachers()
       .map((t) => t.fullName || t.teacherId)
-      .filter(Boolean);
-    const defaults = ['Academic Lead', 'Faculty In-Charge'];
-    return Array.from(new Set([...list, ...defaults]));
+      .filter((name) => Boolean(name) && !name.toLowerCase().includes('dudex'));
+    return Array.from(new Set(['Administrator', ...list]));
   }, []);
-  const [selectedFaculty, setSelectedFaculty] = useState<string>(() => availableFaculty[0] || 'Academic Lead');
+  const [selectedFaculty, setSelectedFaculty] = useState<string>('Administrator');
   const [isFacultyDropdownOpen, setIsFacultyDropdownOpen] = useState<boolean>(false);
 
   // Date (defaults to dynamic today)
@@ -356,7 +355,7 @@ export const MarkAttendancePage: React.FC = () => {
       studentName: student.fullName,
       batchName: student.batchName || student.batch || (selectedBatch !== 'All Batches' ? selectedBatch : 'Batch 1'),
       subject: 'General',
-      teacherName: selectedFaculty || 'Faculty In-Charge',
+      teacherName: selectedFaculty || 'Administrator',
       date: selectedDate,
       status: attendanceState[student.id] || 'Not Marked',
     }));
